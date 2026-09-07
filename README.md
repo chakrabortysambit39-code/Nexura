@@ -1,24 +1,39 @@
-# NEXURA
+# 🌌 NEXURA
 
-**Your entertainment universe, powered by NOVA.**
+## Entertainment Without Limits. Powered by NOVA. 🤖
 
-NEXURA is a web-first entertainment hub for discovering videos, movies, music, games, and AI-powered recommendations in one place.
+NEXURA is a futuristic entertainment ecosystem that brings together entertainment discovery, supported video experiences, movies, music, games, and an AI companion called **NOVA**.
 
-## Current build
+## 🚀 Current Status
 
-- React + Vite foundation
-- Responsive futuristic landing page
-- Home / Watch / Movies / Music / Play / Trending navigation
-- NOVA AI companion entry point
-- Lucide icon system
+### Active milestone: **PHASE 2 — Core Entertainment Hub**
 
-## Run locally
+The project already includes:
+
+- ⚛️ React + Vite foundation
+- ✨ Futuristic responsive UI
+- 🧭 Main navigation
+- 🤖 NOVA entry point
+- 🌌 NEXURA visual identity
+
+## 🗺️ Full Development Plan
+
+The complete roadmap contains **15 development phases**, from the foundation all the way to the final NEXURA Command Center.
+
+See **[ROADMAP.md](ROADMAP.md)** for the complete plan.
+
+## 🛠️ Run Locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Product direction
+## ⚖️ Integrations
 
-NEXURA will use official APIs, permitted embeds, links, and integrations for third-party entertainment services. NOVA will become the intelligence layer for discovery, recommendations, personalization, and conversational interaction.
+NEXURA is designed to use **official APIs, permitted embeds, licensed content, and official links** for third-party services.
+
+---
+
+**PROJECT NEXURA**  
+*Building an entertainment universe, one phase at a time.* 🚀
