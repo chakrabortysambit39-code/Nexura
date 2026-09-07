@@ -33,10 +33,12 @@ function App(){
  async function askNova(){
   const text=draft.trim();if(!text||thinking)return;setMessages(m=>[...m,{from:'user',text}]);setDraft('');setThinking(true);
   try{
-   const endpoint=import.meta.env.VITE_NOVA_API_URL;
-   if(endpoint){const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:messages.slice(-8)})});if(!r.ok)throw new Error();const data=await r.json();setMessages(m=>[...m,{from:'nova',text:data.reply||data.message||'I’m here!'}]);}
-   else{const l=text.toLowerCase();let reply='Tell me your mood and I’ll help you choose something awesome on NEXURA.';if(l.includes('bored'))reply='Boredom detected 😄 Try YouTube for a quick rabbit hole, Twitch for something live, or ask me for a movie mood.';else if(l.includes('movie')||l.includes('film'))reply='Movie mode 🎬 Open Movies and pick Netflix, Prime Video, Disney+ or JioHotstar.';else if(l.includes('music')||l.includes('song'))reply='Music mode 🎵 Spotify, Apple Music and SoundCloud are waiting for you.';else if(l.includes('anime'))reply='Anime mode activated 🍿 Crunchyroll is in your NEXURA hub.';setTimeout(()=>setMessages(m=>[...m,{from:'nova',text:reply}]),350);}
-  }catch{setMessages(m=>[...m,{from:'nova',text:'NOVA could not reach its AI service right now. Check the NOVA API connection.'}]);}
+   const endpoint=import.meta.env.VITE_NOVA_API_URL||'/api/nova';
+   const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:messages.slice(-8)})});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok)throw new Error(data.error||'NOVA service is unavailable.');
+   setMessages(m=>[...m,{from:'nova',text:data.reply||'I’m here!'}]);
+  }catch(err){setMessages(m=>[...m,{from:'nova',text:err.message||'NOVA could not reach its AI service right now. Please try again.'}]);}
   finally{setTimeout(()=>setThinking(false),400);}
  }
  async function handleAuth(e){e.preventDefault();setAuthError('');setAuthSuccess('');if(!supabase){setAuthError('Authentication is not configured yet. Add your Supabase environment variables in Render.');return}const fd=new FormData(e.currentTarget);const email=fd.get('email');const password=fd.get('password');const name=fd.get('name');setAuthLoading(true);try{let result;if(authMode==='signup'){result=await supabase.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:window.location.origin}})}else{result=await supabase.auth.signInWithPassword({email,password})}if(result.error)throw result.error;if(authMode==='signup'){setAuthSuccess('Account created! Check your email if confirmation is enabled.')}else{setLoginOpen(false)}}catch(err){setAuthError(err.message||'Authentication failed.')}finally{setAuthLoading(false)}}
