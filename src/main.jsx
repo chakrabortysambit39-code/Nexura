@@ -1,114 +1,53 @@
-import React, { useMemo, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import {
-  Search, Bell, User, Sparkles, Play, Film, Music2, Gamepad2, Flame,
-  Bot, ChevronRight, Heart, Clock3, Star, X, Send, Home, Compass,
-  ListMusic, Trophy, Settings, Mic
-} from 'lucide-react';
-import './styles.css';
+import React,{useMemo,useState}from'react';
+import{createRoot}from'react-dom/client';
+import{Search,Bell,User,Sparkles,Play,Film,Music2,Gamepad2,Flame,Bot,ChevronRight,Heart,Clock3,Star,X,Send,Home,Compass,ListMusic,Trophy,Settings,Mic,LogIn,LogOut,ExternalLink,Lock,Mail,Eye,EyeOff,Grid2X2,MonitorPlay,Radio,Popcorn}from'lucide-react';
+import'./styles.css';
 
-const sections = {
-  Home: [
-    { icon: Play, title: 'Watch', subtitle: 'Videos & creators', badge: 'Explore' },
-    { icon: Film, title: 'Movies', subtitle: 'Discover your next story', badge: 'Discover' },
-    { icon: Music2, title: 'Music', subtitle: 'Songs & playlists', badge: 'Listen' },
-    { icon: Gamepad2, title: 'Play', subtitle: 'Games & experiences', badge: 'Play' },
-  ],
-  Watch: ['Creator picks', 'Tech & science', 'Comedy', 'Gaming'],
-  Movies: ['Trending now', 'Action', 'Sci-fi', 'Animation'],
-  Music: ['Focus', 'Chill', 'Workout', 'Discover'],
-  Play: ['Arcade', 'Puzzle', 'Strategy', 'Challenge'],
-  Trending: ['Hot today', 'Most saved', 'Rising', 'NOVA picks'],
-};
+const apps=[
+ {name:'YouTube',type:'Video',icon:Play,url:'https://www.youtube.com',desc:'Videos, creators & live content',tone:'red'},
+ {name:'Netflix',type:'Movies',icon:Film,url:'https://www.netflix.com',desc:'Films and series',tone:'red'},
+ {name:'Prime Video',type:'Movies',icon:MonitorPlay,url:'https://www.primevideo.com',desc:'Movies and originals',tone:'blue'},
+ {name:'Disney+',type:'Movies',icon:Sparkles,url:'https://www.disneyplus.com',desc:'Disney, Marvel and more',tone:'blue'},
+ {name:'JioHotstar',type:'Movies',icon:Popcorn,url:'https://www.jiohotstar.com',desc:'Shows, movies and sports',tone:'orange'},
+ {name:'Spotify',type:'Music',icon:Music2,url:'https://open.spotify.com',desc:'Music and podcasts',tone:'green'},
+ {name:'Apple Music',type:'Music',icon:Radio,url:'https://music.apple.com',desc:'Songs and playlists',tone:'pink'},
+ {name:'SoundCloud',type:'Music',icon:Music2,url:'https://soundcloud.com',desc:'Independent music',tone:'orange'},
+ {name:'Twitch',type:'Live',icon:MonitorPlay,url:'https://www.twitch.tv',desc:'Live streams and gaming',tone:'purple'},
+ {name:'Crunchyroll',type:'Anime',icon:Play,url:'https://www.crunchyroll.com',desc:'Anime streaming',tone:'orange'},
+];
 
-function App() {
-  const [active, setActive] = useState('Home');
-  const [search, setSearch] = useState('');
-  const [favorites, setFavorites] = useState([]);
-  const [novaOpen, setNovaOpen] = useState(false);
-  const [messages, setMessages] = useState([{from:'nova', text:'Hey! I’m NOVA. Tell me what kind of entertainment you feel like right now. ✨'}]);
-  const [draft, setDraft] = useState('');
+const sections=['Home','Watch','Movies','Music','Play','Trending'];
 
-  const items = useMemo(() => {
-    const base = active === 'Home' ? sections.Home : sections[active].map((title, i) => ({
-      icon: [Play, Film, Music2, Gamepad2][i % 4],
-      title,
-      subtitle: active + ' discovery',
-      badge: 'Explore'
-    }));
-    return base.filter(x => (x.title + x.subtitle).toLowerCase().includes(search.toLowerCase()));
-  }, [active, search]);
-
-  const toggleFavorite = (title) => setFavorites(f => f.includes(title) ? f.filter(x => x !== title) : [...f, title]);
-
-  const askNova = () => {
-    const text = draft.trim();
-    if (!text) return;
-    setMessages(m => [...m, {from:'user', text}]);
-    setDraft('');
-    const lower = text.toLowerCase();
-    let reply = 'Nice. I’d start with something fresh from your Trending and Discover sections. Want a funny, exciting, relaxing, or mind-blowing vibe?';
-    if (lower.includes('bored')) reply = 'Say no more 😄 Try a fast game, a short comedy video, or let me build you a surprise entertainment session.';
-    if (lower.includes('funny') || lower.includes('comedy')) reply = 'Comedy mode activated 😂 Head to Watch for comedy picks, and I’ll keep your recommendations light and fun.';
-    if (lower.includes('movie') || lower.includes('film')) reply = 'Movie night! 🎬 Try Movies → Trending now, then save anything interesting to your favorites.';
-    if (lower.includes('music') || lower.includes('song')) reply = 'Music it is 🎵 Choose Chill, Focus, Workout, or Discover and I’ll help you find the right vibe.';
-    setTimeout(() => setMessages(m => [...m, {from:'nova', text:reply}]), 350);
-  };
-
-  return <div className="app-shell">
-    <div className="ambient ambient-one" /><div className="ambient ambient-two" />
-    <header className="topbar">
-      <button className="brand-wrap brand-button" onClick={() => setActive('Home')}>
-        <div className="brand-mark">N</div><div><div className="brand">NEXURA</div><div className="tagline">Entertainment, reimagined.</div></div>
-      </button>
-      <nav className="nav">{Object.keys(sections).map(name => <button key={name} className={active===name?'active':''} onClick={()=>setActive(name)}>{name}</button>)}</nav>
-      <div className="top-actions">
-        <div className="search-wrap"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search Nexura"/></div>
-        <button className="icon-btn"><Bell size={19}/></button><button className="profile-btn"><User size={18}/></button>
-      </div>
-    </header>
-
-    <main>
-      {active === 'Home' && <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow"><Sparkles size={16}/> YOUR ENTERTAINMENT UNIVERSE</div>
-          <h1>One place for<br/><span>everything you love.</span></h1>
-          <p>Discover videos, movies, music and games — with NOVA ready to make every moment more personal.</p>
-          <div className="hero-actions"><button className="primary-btn" onClick={()=>setActive('Trending')}><Compass size={18}/> Explore now</button><button className="secondary-btn" onClick={()=>setNovaOpen(true)}><Bot size={18}/> Meet NOVA</button></div>
-        </div>
-        <div className="nova-card"><div className="nova-orb"><Sparkles size={30}/></div><div className="nova-label">NOVA AI</div><div className="nova-title">Your entertainment companion.</div><div className="nova-text">“Tell me your mood. I’ll find the vibe.”</div><button className="mini-arrow" onClick={()=>setNovaOpen(true)}><ChevronRight size={20}/></button></div>
-      </section>}
-
-      <section className="section">
-        <div className="section-head"><div><div className="section-kicker"><Flame size={15}/> {active === 'Home' ? 'LIVE DISCOVERY' : active.toUpperCase()}</div><h2>{active === 'Home' ? 'What are you in the mood for?' : active + ' Hub'}</h2></div>
-          <div className="stats"><span><Heart size={14}/> {favorites.length} saved</span><span><Clock3 size={14}/> session active</span></div></div>
-        <div className="card-grid">{items.map(({icon:Icon,title,subtitle,badge}) => <article className="media-card" key={title}>
-          <button className={'favorite '+(favorites.includes(title)?'saved':'')} onClick={()=>toggleFavorite(title)}><Heart size={16} fill={favorites.includes(title)?'currentColor':'none'}/></button>
-          <div className="card-icon"><Icon size={24}/></div><div className="card-title">{title}</div><div className="card-subtitle">{subtitle}</div>
-          <button className="card-footer" onClick={()=>setNovaOpen(true)}><span>{badge}</span><ChevronRight size={16}/></button>
-        </article>)}</div>
-        {items.length===0 && <div className="empty-state">No results found for “{search}”. Try another search.</div>}
-      </section>
-
-      <section className="continue-grid">
-        <div className="mini-panel"><Clock3/><div><b>Continue exploring</b><p>Your next NEXURA session starts here.</p></div><button onClick={()=>setActive('Trending')}>Open <ChevronRight size={15}/></button></div>
-        <div className="mini-panel"><Trophy/><div><b>Achievements</b><p>Entertainment explorer — Level 1.</p></div><Star size={18}/></div>
-        <div className="mini-panel"><ListMusic/><div><b>Your library</b><p>{favorites.length ? favorites.join(', ') : 'Save things you love to build it.'}</p></div><Heart size={18}/></div>
-      </section>
-
-      <section className="nova-banner"><div className="nova-banner-orb"><Bot size={28}/></div><div className="nova-banner-copy"><div className="section-kicker">POWERED BY NOVA</div><h3>“I'm bored.” is a perfectly valid prompt.</h3><p>NOVA turns a feeling into an entertainment session.</p></div><button className="primary-btn compact" onClick={()=>setNovaOpen(true)}>Ask NOVA <ChevronRight size={17}/></button></section>
-    </main>
-
-    <div className="mobile-nav">{[[Home,'Home'],[Play,'Watch'],[Film,'Movies'],[Music2,'Music'],[Bot,'NOVA']].map(([Icon,name]) => <button key={name} className={active===name?'active':''} onClick={()=>name==='NOVA'?setNovaOpen(true):setActive(name)}><Icon size={19}/><span>{name}</span></button>)}</div>
-
-    {novaOpen && <div className="modal-backdrop" onClick={()=>setNovaOpen(false)}><section className="nova-modal" onClick={e=>e.stopPropagation()}>
-      <div className="nova-modal-head"><div><div className="nova-label">NOVA AI · ONLINE</div><h3>Your entertainment companion</h3></div><button className="icon-btn" onClick={()=>setNovaOpen(false)}><X size={19}/></button></div>
-      <div className="chat">{messages.map((m,i)=><div key={i} className={'message '+m.from}>{m.from==='nova' && <Bot size={17}/>}<span>{m.text}</span></div>)}</div>
-      <div className="quick-prompts"><button onClick={()=>{setDraft("I'm bored");}}>I'm bored</button><button onClick={()=>{setDraft("Recommend a funny movie");}}>Make me laugh</button><button onClick={()=>{setDraft("I want relaxing music");}}>Relax me</button></div>
-      <div className="chat-input"><button><Mic size={18}/></button><input value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>e.key==='Enter'&&askNova()} placeholder="Ask NOVA anything..."/><button className="send" onClick={askNova}><Send size={18}/></button></div>
-    </section></div>}
-    <footer>© 2026 NEXURA · Entertainment without limits · <Settings size={12}/> Settings</footer>
-  </div>
+function App(){
+ const[active,setActive]=useState('Home');const[search,setSearch]=useState('');const[favorites,setFavorites]=useState([]);
+ const[novaOpen,setNovaOpen]=useState(false);const[loginOpen,setLoginOpen]=useState(false);const[user,setUser]=useState(null);const[showPass,setShowPass]=useState(false);
+ const[messages,setMessages]=useState([{from:'nova',text:'Hey! I’m NOVA. Tell me what kind of entertainment you feel like right now. ✨'}]);const[draft,setDraft]=useState('');const[thinking,setThinking]=useState(false);
+ const filteredApps=useMemo(()=>apps.filter(a=>(active==='Home'||active==='Trending'||a.type===active||active==='Watch'&&['Video','Live'].includes(a.type)||active==='Play'&&a.type==='Live')&&(a.name+a.type+a.desc).toLowerCase().includes(search.toLowerCase())),[active,search]);
+ const toggleFavorite=name=>setFavorites(f=>f.includes(name)?f.filter(x=>x!==name):[...f,name]);
+ async function askNova(){
+  const text=draft.trim();if(!text||thinking)return;setMessages(m=>[...m,{from:'user',text}]);setDraft('');setThinking(true);
+  try{
+   const endpoint=import.meta.env.VITE_NOVA_API_URL;
+   if(endpoint){const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:messages.slice(-8)})});if(!r.ok)throw new Error();const data=await r.json();setMessages(m=>[...m,{from:'nova',text:data.reply||data.message||'I’m here!'}]);}
+   else{const l=text.toLowerCase();let reply='Tell me your mood and I’ll help you choose something awesome on NEXURA.';if(l.includes('bored'))reply='Boredom detected 😄 Try YouTube for a quick rabbit hole, Twitch for something live, or ask me for a movie mood.';else if(l.includes('movie')||l.includes('film'))reply='Movie mode 🎬 Open Movies and pick Netflix, Prime Video, Disney+ or JioHotstar.';else if(l.includes('music')||l.includes('song'))reply='Music mode 🎵 Spotify, Apple Music and SoundCloud are waiting for you.';else if(l.includes('anime'))reply='Anime mode activated 🍿 Crunchyroll is in your NEXURA hub.';setTimeout(()=>setMessages(m=>[...m,{from:'nova',text:reply}]),350);}
+  }catch{setMessages(m=>[...m,{from:'nova',text:'NOVA could not reach its AI service right now. Check the NOVA API connection.'}]);}
+  finally{setTimeout(()=>setThinking(false),400);}
+ }
+ function login(e){e.preventDefault();const name=new FormData(e.currentTarget).get('name')||'Explorer';setUser({name});setLoginOpen(false)}
+ return <div className="app-shell"><div className="ambient ambient-one"/><div className="ambient ambient-two"/>
+ <header className="topbar"><button className="brand-wrap brand-button" onClick={()=>setActive('Home')}><div className="brand-mark">N</div><div><div className="brand">NEXURA</div><div className="tagline">Entertainment, reimagined.</div></div></button>
+ <nav className="nav">{sections.map(n=><button key={n} className={active===n?'active':''} onClick={()=>setActive(n)}>{n}</button>)}</nav>
+ <div className="top-actions"><div className="search-wrap"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search apps & entertainment"/></div><button className="icon-btn"><Bell size={19}/></button>
+ {user?<button className="user-chip" onClick={()=>setUser(null)} title="Log out"><span>{user.name[0].toUpperCase()}</span><small>{user.name}</small><LogOut size={15}/></button>:<button className="login-btn" onClick={()=>setLoginOpen(true)}><LogIn size={17}/> Login</button>}</div></header>
+ <main>{active==='Home'&&<section className="hero"><div className="hero-copy"><div className="eyebrow"><Sparkles size={16}/> YOUR ENTERTAINMENT UNIVERSE</div><h1>Everything you watch,<br/><span>listen to and love.</span></h1><p>NEXURA brings your favourite entertainment destinations together in one beautiful hub, with NOVA ready to help you decide what to enjoy next.</p><div className="hero-actions"><button className="primary-btn" onClick={()=>document.getElementById('apps')?.scrollIntoView({behavior:'smooth'})}><Grid2X2 size={18}/> Explore apps</button><button className="secondary-btn" onClick={()=>setNovaOpen(true)}><Bot size={18}/> Ask NOVA</button></div></div>
+ <div className="nova-card"><div className="nova-orb"><Sparkles size={30}/></div><div className="nova-label">NOVA AI</div><div className="nova-title">Your entertainment companion.</div><div className="nova-text">Ask for movie ideas, music vibes, anime, videos, or something completely random.</div><button className="mini-arrow" onClick={()=>setNovaOpen(true)}><ChevronRight size={20}/></button></div></section>}
+ <section className="section" id="apps"><div className="section-head"><div><div className="section-kicker"><Flame size={15}/> {active==='Home'?'ENTERTAINMENT APPS':active.toUpperCase()}</div><h2>{active==='Home'?'Your entertainment universe':active+' Hub'}</h2></div><div className="stats"><span><Heart size={14}/> {favorites.length} saved</span><span><Grid2X2 size={14}/> {apps.length} destinations</span></div></div>
+ <div className="app-grid">{filteredApps.map(a=>{const Icon=a.icon;return <article className={'app-card '+a.tone} key={a.name}><button className={'favorite '+(favorites.includes(a.name)?'saved':'')} onClick={()=>toggleFavorite(a.name)}><Heart size={16} fill={favorites.includes(a.name)?'currentColor':'none'}/></button><div className="app-logo"><Icon size={28}/></div><div className="app-type">{a.type}</div><h3>{a.name}</h3><p>{a.desc}</p><a href={a.url} target="_blank" rel="noreferrer" className="launch-btn">Open officially <ExternalLink size={15}/></a></article>})}</div>{filteredApps.length===0&&<div className="empty-state">No entertainment apps found for “{search}”.</div>}</section>
+ <section className="continue-grid"><div className="mini-panel"><Clock3/><div><b>Continue exploring</b><p>Jump back into your favourite entertainment.</p></div><button onClick={()=>setActive('Trending')}>Open <ChevronRight size={15}/></button></div><div className="mini-panel"><Trophy/><div><b>Your NEXURA profile</b><p>{user?'Logged in as '+user.name:'Login to personalise your experience.'}</p></div><User size={18}/></div><div className="mini-panel"><ListMusic/><div><b>Your library</b><p>{favorites.length?favorites.join(', '):'Save apps you love to build it.'}</p></div><Heart size={18}/></div></section>
+ <section className="nova-banner"><div className="nova-banner-orb"><Bot size={28}/></div><div className="nova-banner-copy"><div className="section-kicker">POWERED BY NOVA</div><h3>“I have nothing to watch.”</h3><p>That is exactly the kind of problem NOVA was built for.</p></div><button className="primary-btn compact" onClick={()=>setNovaOpen(true)}>Ask NOVA <ChevronRight size={17}/></button></section></main>
+ <div className="mobile-nav">{[[Home,'Home'],[Play,'Watch'],[Film,'Movies'],[Music2,'Music'],[Bot,'NOVA']].map(([Icon,n])=><button key={n} className={active===n?'active':''} onClick={()=>n==='NOVA'?setNovaOpen(true):setActive(n)}><Icon size={19}/><span>{n}</span></button>)}</div>
+ {loginOpen&&<div className="modal-backdrop" onClick={()=>setLoginOpen(false)}><form className="login-modal" onSubmit={login} onClick={e=>e.stopPropagation()}><button type="button" className="close-modal" onClick={()=>setLoginOpen(false)}><X size={18}/></button><div className="login-icon"><Lock size={25}/></div><div className="nova-label">NEXURA ACCOUNT</div><h2>Welcome to NEXURA</h2><p>Sign in to personalise your entertainment universe.</p><label>Name<input name="name" required placeholder="Your name"/></label><label>Email<input type="email" required placeholder="you@example.com"/></label><label>Password<div className="password-wrap"><input type={showPass?'text':'password'} required placeholder="••••••••"/><button type="button" onClick={()=>setShowPass(!showPass)}>{showPass?<EyeOff size={17}/>:<Eye size={17}/>}</button></div></label><button className="primary-btn login-submit" type="submit"><LogIn size={17}/> Continue</button><small className="demo-note">Demo login UI for now — real authentication comes with the backend/auth provider.</small></form></div>}
+ {novaOpen&&<div className="modal-backdrop" onClick={()=>setNovaOpen(false)}><section className="nova-modal" onClick={e=>e.stopPropagation()}><div className="nova-modal-head"><div><div className="nova-label">NOVA AI · ONLINE</div><h3>Your entertainment companion</h3></div><button className="icon-btn" onClick={()=>setNovaOpen(false)}><X size={19}/></button></div><div className="chat">{messages.map((m,i)=><div key={i} className={'message '+m.from}>{m.from==='nova'&&<Bot size={17}/>}<span>{m.text}</span></div>)}{thinking&&<div className="message nova"><Bot size={17}/><span>NOVA is thinking...</span></div>}</div><div className="quick-prompts"><button onClick={()=>setDraft("I'm bored")}>I'm bored</button><button onClick={()=>setDraft('Recommend a funny movie')}>Make me laugh</button><button onClick={()=>setDraft('I want relaxing music')}>Relax me</button><button onClick={()=>setDraft('Recommend an anime')}>Anime time</button></div><div className="chat-input"><button><Mic size={18}/></button><input value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>e.key==='Enter'&&askNova()} placeholder="Ask NOVA anything..."/><button className="send" onClick={askNova}><Send size={18}/></button></div></section></div>}
+ <footer>© 2026 NEXURA · Entertainment without limits · <Settings size={12}/> Settings</footer></div>
 }
-
 createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>);
