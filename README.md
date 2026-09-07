@@ -1,0 +1,2 @@
+# Nexura
+Entertainment App
