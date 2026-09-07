@@ -29,7 +29,7 @@ app.post('/api/nova',async(req,res)=>{
         'Content-Type':'application/json'
       },
       body:JSON.stringify({
-        model:process.env.GROQ_MODEL||'llama-3.3-70b-versatile',
+        model:process.env.GROQ_MODEL||'openai/gpt-oss-20b',
         messages:[
           {role:'system',content:'You are NOVA, the friendly AI companion inside NEXURA, an entertainment hub. Help users discover movies, shows, music, anime, videos and entertainment. Be concise, warm and useful. Do not claim to stream copyrighted content or access private accounts.'},
           ...cleanHistory,
