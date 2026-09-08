@@ -25,7 +25,8 @@ const[active,setActive]=useState('Home'),[search,setSearch]=useState(''),[favori
 const[novaOpen,setNovaOpen]=useState(false),[profileOpen,setProfileOpen]=useState(false),[loginOpen,setLoginOpen]=useState(false),[user,setUser]=useState(null),[showPass,setShowPass]=useState(false),[authMode,setAuthMode]=useState('signin'),[authLoading,setAuthLoading]=useState(false),[authError,setAuthError]=useState(''),[authSuccess,setAuthSuccess]=useState('');
 const[messages,setMessages]=useState([{from:'nova',text:'Hey! I’m NOVA. Tell me what kind of entertainment you feel like right now. ✨'}]),[draft,setDraft]=useState(''),[thinking,setThinking]=useState(false),[listening,setListening]=useState(false),[voiceOn,setVoiceOn]=useState(true);
 const[speechSupported]=useState(()=>typeof window!=='undefined'&&('SpeechRecognition'in window||'webkitSpeechRecognition'in window));
-const[discover,setDiscover]=useState({trending:[],movies:[],tv:[],loading:true,error:''});\nconst[selectedMedia,setSelectedMedia]=useState(null),[mediaLoading,setMediaLoading]=useState(false),[mediaError,setMediaError]=useState('');
+const[discover,setDiscover]=useState({trending:[],movies:[],tv:[],loading:true,error:''});
+const[selectedMedia,setSelectedMedia]=useState(null),[mediaLoading,setMediaLoading]=useState(false),[mediaError,setMediaError]=useState('');
 
 useEffect(()=>{if(!supabase)return;supabase.auth.getSession().then(({data})=>setUser(data.session?.user||null));const{data:{subscription}}=supabase.auth.onAuthStateChange((_e,s)=>setUser(s?.user||null));return()=>subscription.unsubscribe()},[]);
 useEffect(()=>{try{setFavorites(JSON.parse(localStorage.getItem('nexura-favorites')||'[]'));setRecent(JSON.parse(localStorage.getItem('nexura-recent')||'[]'))}catch{}},[]);
