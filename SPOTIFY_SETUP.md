@@ -1,13 +1,23 @@
-# Spotify integration in NEXURA
+# Spotify in NEXURA
 
-NEXURA uses Spotify's official embedded player for supported public Spotify content. No Spotify secret belongs in the frontend.
+NEXURA now uses Spotify's official Embed player for the in-app music experience.
 
-## How to use
+## No API credentials required
 
-1. Open NEXURA and click Spotify.
-2. Paste an official Spotify URL for a track, album, playlist, artist, show, or episode when supported.
-3. NEXURA converts the URL to Spotify's embed form and loads the official player.
+The Spotify hub does **not** require:
 
-## Optional Spotify Developer API
+- Spotify Client ID
+- Spotify Client Secret
+- Spotify Web API access
+- Spotify Premium for the NEXURA integration itself
 
-A Spotify Developer Client ID/Secret is only needed if NEXURA later adds its own Spotify Web API search, user-library, or account authorization features. Never expose the Client Secret in Vite `VITE_*` variables; keep it server-side.
+## How it works
+
+1. Open **Spotify** inside NEXURA.
+2. Choose one of the curated music or podcast collections.
+3. NEXURA loads Spotify's official embedded player directly inside the app.
+4. Use the player's own controls for supported playback.
+
+A **Browse Spotify** button is also available for exploring Spotify directly.
+
+Playback availability, previews, and account requirements are controlled by Spotify and can vary by content, region, browser, and the listener's Spotify account.
