@@ -27,37 +27,43 @@ app.get('/api/discover',async(req,res)=>{
     const cached=discoveryCache.get(cacheKey);
     if(cached&&Date.now()-cached.time<300000)return res.json({...cached.data,cached:true});
     const get=url=>fetchJsonFast(base+url,{Authorization:'Bearer '+key,accept:'application/json'});
-    const map=(x,type)=>({id:x.id,title:x.title||x.name,poster:x.poster_path?'https://image.tmdb.org/t/p/w500'+x.poster_path:null,rating:x.vote_average,mediaType:x.media_type||type,originalLanguage:x.original_language});
-    const unique=a=>Array.from(new Map(a.map(x=>[x.id+'-'+x.mediaType,x])).values()).slice(0,18);
+    const map=(x,type,language)=>({id:x.id,title:x.title||x.name,poster:x.poster_path?'https://image.tmdb.org/t/p/w500'+x.poster_path:null,rating:x.vote_average,mediaType:x.media_type||type,originalLanguage:x.original_language,requestedLanguage:language});
+    const dedupe=a=>Array.from(new Map(a.map(x=>[x.id+'-'+x.mediaType,x])).values());
+    const roundRobin=(groups,limit)=>{
+      const out=[],seen=new Set(),max=Math.max(0,...groups.map(g=>g.length));
+      for(let i=0;i<max&&out.length<limit;i++)for(const group of groups){
+        const x=group[i],k=x&&x.id+'-'+x.mediaType;
+        if(x&&!seen.has(k)){seen.add(k);out.push(x);if(out.length>=limit)break}
+      }
+      return out;
+    };
     let data;
     if(requested.length){
-      const jobs=[];
-      for(const l of requested){
-        jobs.push({kind:'movie',promise:get('/discover/movie?with_original_language='+encodeURIComponent(l)+'&sort_by=popularity.desc&page=1')});
-        jobs.push({kind:'tv',promise:get('/discover/tv?with_original_language='+encodeURIComponent(l)+'&sort_by=popularity.desc&page=1')});
-      }
+      const jobs=requested.flatMap(l=>[
+        {kind:'movie',language:l,promise:get('/discover/movie?with_original_language='+encodeURIComponent(l)+'&sort_by=popularity.desc&vote_count.gte=5&page=1')},
+        {kind:'tv',language:l,promise:get('/discover/tv?with_original_language='+encodeURIComponent(l)+'&sort_by=popularity.desc&vote_count.gte=5&page=1')}
+      ]);
       const settled=await Promise.allSettled(jobs.map(j=>j.promise));
-      const movies=[],tv=[];
+      const movieGroups=requested.map(()=>[]),tvGroups=requested.map(()=>[]);
       settled.forEach((r,i)=>{
         if(r.status!=='fulfilled')return;
-        const target=jobs[i].kind==='movie'?movies:tv;
-        target.push(...(r.value.results||[]).map(x=>map(x,jobs[i].kind)));
+        const j=jobs[i],index=requested.indexOf(j.language);
+        const target=j.kind==='movie'?movieGroups[index]:tvGroups[index];
+        target.push(...(r.value.results||[]).map(x=>map(x,j.kind,j.language)));
       });
+      const movies=roundRobin(movieGroups,36),tv=roundRobin(tvGroups,36);
       if(!movies.length&&!tv.length)throw new Error('Discovery provider is temporarily slow. Please try again.');
-      const cleanMovies=unique(movies),cleanTv=unique(tv);
-      data={trending:unique([...cleanMovies,...cleanTv].sort((a,b)=>(b.rating||0)-(a.rating||0))).slice(0,18),movies:cleanMovies,tv:cleanTv,languages:requested};
+      const trending=roundRobin(requested.map((_,i)=>dedupe([...(movieGroups[i]||[]).slice(0,9),...(tvGroups[i]||[]).slice(0,9)])),36);
+      data={trending,movies,tv,languages:requested,balanced:true};
     }else{
       const settled=await Promise.allSettled([
-        get('/trending/all/day?language=en-US'),
-        get('/movie/popular?language=en-US&page=1'),
-        get('/tv/popular?language=en-US&page=1')
+        get('/trending/all/day?language=en-US'),get('/movie/popular?language=en-US&page=1'),get('/tv/popular?language=en-US&page=1')
       ]);
-      const fallback=[];
       const trend=settled[0].status==='fulfilled'?settled[0].value.results:[],movie=settled[1].status==='fulfilled'?settled[1].value.results:[],tv=settled[2].status==='fulfilled'?settled[2].value.results:[];
       data={trending:trend.slice(0,18).map(x=>map(x,x.media_type||'movie')),movies:movie.slice(0,18).map(x=>map(x,'movie')),tv:tv.slice(0,18).map(x=>map(x,'tv')),languages:[]};
     }
     discoveryCache.set(cacheKey,{time:Date.now(),data});
-    if(discoveryCache.size>30){const oldest=discoveryCache.keys().next().value;discoveryCache.delete(oldest)}
+    if(discoveryCache.size>30)discoveryCache.delete(discoveryCache.keys().next().value);
     res.json(data);
   }catch(e){
     console.error('Discovery error',e);
